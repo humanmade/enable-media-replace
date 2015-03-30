@@ -32,18 +32,15 @@ $current_filename = substr( $current_filename, ( strrpos( $current_filename, '/'
 	<h2><?php echo esc_html__( 'Replace Media Upload', 'enable-media-replace' ); ?></h2>
 
 	<?php
-	$url     = admin_url( 'upload.php?page=enable-media-replace/enable-media-replace.php&noheader=true&action=media_replace_upload&attachment_id=' . $attachment_id );
-	$action  = 'media_replace_upload';
-	$formurl = wp_nonce_url( $url, $action );
+	$form_url = admin_url( 'upload.php?page=enable-media-replace/enable-media-replace.php&noheader=true&action=media_replace_upload&attachment_id=' . $attachment_id );
+
 	if ( FORCE_SSL_ADMIN ) {
-		$formurl = str_replace( 'http:', 'https:', $formurl );
+		$formurl = str_replace( 'http:', 'https:', $form_url );
 	}
 	?>
 
-	<form enctype="multipart/form-data" method="post" action="<?php echo esc_url( $formurl ); ?>">
-		<?php
-		#wp_nonce_field('enable-media-replace');
-		?>
+	<form enctype="multipart/form-data" method="post" action="<?php echo esc_url( $form_url ); ?>">
+		<?php wp_nonce_field('media_replace_upload'); ?>
 		<input type="hidden" name="ID" value="<?php echo esc_attr( $attachment_id ); ?>"/>
 
 		<div id="message" class="updated fade">
