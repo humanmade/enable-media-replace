@@ -114,9 +114,8 @@ function add_media_action( $actions, $post ) {
 	if ( FORCE_SSL_ADMIN ) {
 		$editurl = str_replace( "http:", "https:", $editurl );
 	}
-	$link = "href=\"$editurl\"";
 
-	$newaction['adddata'] = '<a ' . $link . ' title="' . __( "Replace media", "enable-media-replace" ) . '" rel="permalink">' . __( "Replace media", "enable-media-replace" ) . '</a>';
+	$newaction['adddata'] = '<a href="' . esc_url( $editurl ) . '" title="' . __( "Replace media", "enable-media-replace" ) . '" rel="permalink">' . __( "Replace media", "enable-media-replace" ) . '</a>';
 
 	return array_merge( $actions, $newaction );
 }
