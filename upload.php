@@ -3,60 +3,14 @@ if ( ! current_user_can( 'upload_files' ) ) {
 	wp_die( __( 'You do not have permission to upload files.', 'enable-media-replace' ) );
 }
 
+if ( ! ua_has_files_to_upload( 'user_file' ) ) {
+	wp_die( __( 'Please select a file to upload', 'enable-media-replace' ), '', array( 'back_link' => true ) );
+}
+
 // Define DB table names
 global $wpdb;
 $table_name          = $wpdb->prefix . 'posts';
 $postmeta_table_name = $wpdb->prefix . 'postmeta';
-
-function emr_delete_current_files( $current_file ) {
-	// Delete old file
-
-	// Find path of current file
-	$current_path = substr( $current_file, 0, ( strrpos( $current_file, '/' ) ) );
-
-	// Check if old file exists first
-	if ( file_exists( $current_file ) ) {
-		// Now check for correct file permissions for old file
-		clearstatcache();
-		if ( is_writable( $current_file ) ) {
-			// Everything OK; delete the file
-			unlink( $current_file );
-		} else {
-			// File exists, but has wrong permissions. Let the user know.
-			printf( __( 'The file %1$s can not be deleted by the web server, most likely because the permissions on the file are wrong.', 'enable-media-replace' ), $current_file );
-			exit;
-		}
-	}
-
-	// Delete old resized versions if this was an image
-	$suffix = substr( $current_file, ( strlen( $current_file ) - 4 ) );
-	$prefix = substr( $current_file, 0, ( strlen( $current_file ) - 4 ) );
-	$imgAr  = array( '.png', '.gif', '.jpg' );
-	if ( in_array( $suffix, $imgAr ) ) {
-		// It's a png/gif/jpg based on file name
-		// Get thumbnail filenames from metadata
-		$metadata = wp_get_attachment_metadata( absint( $_POST['ID'] ) );
-		if ( is_array( $metadata ) ) { // Added fix for error messages when there is no metadata (but WHY would there not be? I don't know…)
-			foreach ( $metadata['sizes'] AS $thissize ) {
-				// Get all filenames and do an unlink() on each one;
-				$thisfile = $thissize['file'];
-				// Create array with all old sizes for replacing in posts later
-				$oldfilesAr[] = $thisfile;
-				// Look for files and delete them
-				if ( strlen( $thisfile ) ) {
-					$thisfile = $current_path . '/' . $thissize['file'];
-					if ( file_exists( $thisfile ) ) {
-						unlink( $thisfile );
-					}
-				}
-			}
-		}
-		// Old (brutal) method, left here for now
-		//$mask = $prefix . "-*x*" . $suffix;
-		//array_map( "unlink", glob( $mask ) );
-	}
-
-}
 
 // Get old guid and filetype from DB
 $sql = $wpdb->prepare( "SELECT guid, post_mime_type FROM $table_name WHERE ID = %d", absint( $_POST['ID'] ) );
@@ -186,4 +140,58 @@ if ( is_uploaded_file( $_FILES['userfile']['tmp_name'] ) ) {
 	//Reload the previous screen
 	wp_safe_redirect( wp_get_referer() );
 	exit;
+}
+
+function ua_has_files_to_upload( $id ) {
+	return ( ! empty( $_FILES ) ) && isset( $_FILES[ $id ] );
+}
+
+function emr_delete_current_files( $current_file ) {
+	// Delete old file
+
+	// Find path of current file
+	$current_path = substr( $current_file, 0, ( strrpos( $current_file, '/' ) ) );
+
+	// Check if old file exists first
+	if ( file_exists( $current_file ) ) {
+		// Now check for correct file permissions for old file
+		clearstatcache();
+		if ( is_writable( $current_file ) ) {
+			// Everything OK; delete the file
+			unlink( $current_file );
+		} else {
+			// File exists, but has wrong permissions. Let the user know.
+			printf( __( 'The file %1$s can not be deleted by the web server, most likely because the permissions on the file are wrong.', 'enable-media-replace' ), $current_file );
+			exit;
+		}
+	}
+
+	// Delete old resized versions if this was an image
+	$suffix = substr( $current_file, ( strlen( $current_file ) - 4 ) );
+	$prefix = substr( $current_file, 0, ( strlen( $current_file ) - 4 ) );
+	$imgAr  = array( '.png', '.gif', '.jpg' );
+	if ( in_array( $suffix, $imgAr ) ) {
+		// It's a png/gif/jpg based on file name
+		// Get thumbnail filenames from metadata
+		$metadata = wp_get_attachment_metadata( absint( $_POST['ID'] ) );
+		if ( is_array( $metadata ) ) { // Added fix for error messages when there is no metadata (but WHY would there not be? I don't know…)
+			foreach ( $metadata['sizes'] AS $thissize ) {
+				// Get all filenames and do an unlink() on each one;
+				$thisfile = $thissize['file'];
+				// Create array with all old sizes for replacing in posts later
+				$oldfilesAr[] = $thisfile;
+				// Look for files and delete them
+				if ( strlen( $thisfile ) ) {
+					$thisfile = $current_path . '/' . $thissize['file'];
+					if ( file_exists( $thisfile ) ) {
+						unlink( $thisfile );
+					}
+				}
+			}
+		}
+		// Old (brutal) method, left here for now
+		//$mask = $prefix . "-*x*" . $suffix;
+		//array_map( "unlink", glob( $mask ) );
+	}
+
 }
