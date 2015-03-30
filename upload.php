@@ -184,21 +184,19 @@ if ( is_uploaded_file( $_FILES['userfile']['tmp_name'] ) ) {
 
 	}
 
-	$returnurl = get_bloginfo( 'wpurl' ) . '/wp-admin/post.php?post=' . absint( $_POST['ID'] ) . '&action=edit&message=1';
+	$return_url = add_query_arg( array( 'post' => absint( $_POST['ID'] ), 'action' => 'edit', 'message' => 1 ), self_admin_url( 'post.php' ) );
 
 	// Execute hook actions - thanks rubious for the suggestion!
 	if ( isset( $new_guid ) ) {
 		do_action( 'enable-media-replace-upload-done', ( $new_guid ? $new_guid : $current_guid ) );
+
+		wp_redirect( $return_url );
+		exit;
 	}
 } else {
-	//TODO Better error handling when no file is selected.
-	//For now just go back to media management
-	$returnurl = get_bloginfo( 'wpurl' ) . '/wp-admin/upload.php';
+
+	//Reload the previous screen
+	wp_safe_redirect( wp_get_referer() );
+	exit;
 }
 
-if ( FORCE_SSL_ADMIN ) {
-	$returnurl = str_replace( 'http:', 'https:', $returnurl );
-}
-
-//save redirection
-wp_redirect( $returnurl );
