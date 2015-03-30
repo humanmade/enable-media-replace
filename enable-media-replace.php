@@ -90,6 +90,11 @@ function emr_options() {
 	}
 
 	if ( isset( $_GET['action'] ) && $_GET['action'] == 'media_replace_upload' ) {
+
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return;
+		}
+
 		$plugin_url = str_replace( "enable-media-replace.php", "", __FILE__ );
 		check_admin_referer( 'media_replace_upload' ); // die if invalid or missing nonce
 		require_once( $plugin_url . "upload.php" );
@@ -109,9 +114,8 @@ function add_media_action( $actions, $post ) {
 	if ( FORCE_SSL_ADMIN ) {
 		$editurl = str_replace( "http:", "https:", $editurl );
 	}
-	$link = "href=\"$editurl\"";
 
-	$newaction['adddata'] = '<a ' . $link . ' title="' . __( "Replace media", "enable-media-replace" ) . '" rel="permalink">' . __( "Replace media", "enable-media-replace" ) . '</a>';
+	$newaction['adddata'] = '<a href="' . esc_url( $editurl ) . '" title="' . __( "Replace media", "enable-media-replace" ) . '" rel="permalink">' . __( "Replace media", "enable-media-replace" ) . '</a>';
 
 	return array_merge( $actions, $newaction );
 }
@@ -159,13 +163,10 @@ function ua_admin_date_replaced_media_on_edit_media_screen() {
 	$shortcode = "[file_modified id=$id]";
 	?>
 	<div class="misc-pub-section curtime">
-		<span id="timestamp"><?php _e( 'Revised', 'enable-media-replace' ); ?>
-			: <b><?php echo do_shortcode( $shortcode ); ?></b></span>
+		<span id="timestamp"><?php esc_html_e( 'Revised', 'enable-media-replace' ); ?>
+			: <b><?php esc_html_e( do_shortcode( $shortcode ) ); ?></b></span>
 	</div>
 <?php
 }
 
 add_action( 'attachment_submitbox_misc_actions', 'ua_admin_date_replaced_media_on_edit_media_screen', 91 );
-
-
-?>
