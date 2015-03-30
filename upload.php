@@ -35,7 +35,7 @@ function emr_delete_current_files( $current_file ) {
 	if ( in_array( $suffix, $imgAr ) ) {
 		// It's a png/gif/jpg based on file name
 		// Get thumbnail filenames from metadata
-		$metadata = wp_get_attachment_metadata( $_POST["ID"] );
+		$metadata = wp_get_attachment_metadata( absint( $_POST['ID'] ) );
 		if ( is_array( $metadata ) ) { // Added fix for error messages when there is no metadata (but WHY would there not be? I don't know…)
 			foreach ( $metadata["sizes"] AS $thissize ) {
 				// Get all filenames and do an unlink() on each one;
