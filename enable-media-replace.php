@@ -37,7 +37,7 @@ add_shortcode( 'file_modified', 'emr_get_modified_date' );
  * To suppress it in the menu we give it an empty menu title.
  */
 function emr_menu() {
-	add_submenu_page( null, __( "Replace media", "enable-media-replace" ), '', 'upload_files', 'enable-media-replace/enable-media-replace', 'emr_options' );
+	add_submenu_page( null, __( 'Replace media', 'enable-media-replace' ), '', 'upload_files', 'enable-media-replace/enable-media-replace', 'emr_options' );
 }
 
 /**
@@ -159,12 +159,9 @@ function ua_admin_date_replaced_media_on_edit_media_screen() {
 	?>
 	<div class="misc-pub-section curtime">
 		<span id="timestamp"><?php _e( 'Revised', 'enable-media-replace' ); ?>
-			: <b><?php echo do_shortcode( $shortcode ); ?></b></span>
+			: <b><?php echo esc_html( do_shortcode( $shortcode ) ); ?></b></span>
 	</div>
 <?php
 }
 
 add_action( 'attachment_submitbox_misc_actions', 'ua_admin_date_replaced_media_on_edit_media_screen', 91 );
-
-
-?>
