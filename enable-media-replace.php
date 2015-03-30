@@ -57,19 +57,19 @@ function enable_media_replace_init() {
  */
 function enable_media_replace( $form_fields, $post ) {
 
-	$url     = admin_url( "upload.php?page=enable-media-replace/enable-media-replace.php&action=media_replace&attachment_id=" . $post->ID );
-	$action  = "media_replace";
+	$url     = admin_url( 'upload.php?page=enable-media-replace/enable-media-replace.php&action=media_replace&attachment_id=' . $post->ID );
+	$action  = 'media_replace';
 	$editurl = wp_nonce_url( $url, $action );
 
 	if ( FORCE_SSL_ADMIN ) {
-		$editurl = str_replace( "http:", "https:", $editurl );
+		$editurl = str_replace( 'http:', 'https:', $editurl );
 	}
 	$link                                = "href=\"$editurl\"";
-	$form_fields["enable-media-replace"] = array(
-		"label" => __( "Replace media", "enable-media-replace" ),
-		"input" => "html",
-		"html"  => "<p><a class='button-secondary'$link>" . __( "Upload a new file", "enable-media-replace" ) . "</a></p>",
-		"helps" => __( "To replace the current file, click the link and upload a replacement.", "enable-media-replace" )
+	$form_fields['enable-media-replace'] = array(
+		'label' => __( 'Replace media', 'enable-media-replace' ),
+		'input' => 'html',
+		'html'  => "<p><a class='button-secondary'$link>" . esc_html__( 'Upload a new file', 'enable-media-replace' ) . '</a></p>',
+		'helps' => __( 'To replace the current file, click the link and upload a replacement.', 'enable-media-replace' )
 	);
 
 	return $form_fields;
@@ -82,17 +82,17 @@ function enable_media_replace( $form_fields, $post ) {
  */
 function emr_options() {
 
-	if ( isset( $_GET['action'] ) && $_GET['action'] == 'media_replace' ) {
+	if ( isset( $_GET['action'] ) && ( 'media_replace' === $_GET['action'] ) ) {
 		check_admin_referer( 'media_replace' ); // die if invalid or missing nonce
-		if ( array_key_exists( "attachment_id", $_GET ) && (int) $_GET["attachment_id"] > 0 ) {
-			include( "popup.php" );
+		if ( array_key_exists( 'attachment_id', $_GET ) && (int) $_GET['attachment_id'] > 0 ) {
+			include( 'popup.php' );
 		}
 	}
 
-	if ( isset( $_GET['action'] ) && $_GET['action'] == 'media_replace_upload' ) {
-		$plugin_url = str_replace( "enable-media-replace.php", "", __FILE__ );
+	if ( isset( $_GET['action'] ) && ( 'media_replace' === $_GET['action'] ) ) {
+		$plugin_url = str_replace( 'enable-media-replace.php', '', __FILE__ );
 		check_admin_referer( 'media_replace_upload' ); // die if invalid or missing nonce
-		require_once( $plugin_url . "upload.php" );
+		require_once( $plugin_url . 'upload.php' );
 	}
 
 }
@@ -102,16 +102,15 @@ function emr_options() {
  * Enables linking to EMR straight from the media library
  */
 function add_media_action( $actions, $post ) {
-	$url     = admin_url( "upload.php?page=enable-media-replace/enable-media-replace.php&action=media_replace&attachment_id=" . $post->ID );
-	$action  = "media_replace";
+	$url     = admin_url( 'upload.php?page=enable-media-replace/enable-media-replace.php&action=media_replace&attachment_id=' . $post->ID );
+	$action  = 'media_replace';
 	$editurl = wp_nonce_url( $url, $action );
 
 	if ( FORCE_SSL_ADMIN ) {
-		$editurl = str_replace( "http:", "https:", $editurl );
+		$editurl = str_replace( 'http:', 'https:', $editurl );
 	}
-	$link = "href=\"$editurl\"";
 
-	$newaction['adddata'] = '<a ' . $link . ' title="' . __( "Replace media", "enable-media-replace" ) . '" rel="permalink">' . __( "Replace media", "enable-media-replace" ) . '</a>';
+	$newaction['adddata'] = '<a href="' . esc_url( $editurl ) . '" title="' . esc_attr( 'Replace media', 'enable-media-replace' ) . '" rel="permalink">' . esc_html__( 'Replace media', 'enable-media-replace' ) . '</a>';
 
 	return array_merge( $actions, $newaction );
 }
@@ -129,7 +128,7 @@ function emr_get_modified_date( $atts ) {
 
 	extract( shortcode_atts( array(
 		'id'     => '',
-		'format' => get_option( 'date_format' ) . " " . get_option( 'time_format' ),
+		'format' => get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
 	), $atts ) );
 
 	if ( $id == '' ) {
