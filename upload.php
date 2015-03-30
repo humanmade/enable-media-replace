@@ -58,7 +58,6 @@ function emr_delete_current_files( $current_file ) {
 
 }
 
-
 // Get old guid and filetype from DB
 $sql = $wpdb->prepare( "SELECT guid, post_mime_type FROM $table_name WHERE ID = %d", absint( $_POST['ID'] ) );
 list( $current_filename, $current_filetype ) = $wpdb->get_row( $sql, ARRAY_N );
