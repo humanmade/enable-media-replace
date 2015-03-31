@@ -3,7 +3,7 @@ if ( ! current_user_can( 'upload_files' ) ) {
 	wp_die( __( 'You do not have permission to upload files.', 'enable-media-replace' ) );
 }
 
-if ( ! ua_has_files_to_upload( 'user_file' ) ) {
+if ( ! ua_has_files_to_upload( 'userfile' ) ) {
 	wp_die( __( 'Please select a file to upload', 'enable-media-replace' ), '', array( 'back_link' => true ) );
 }
 
