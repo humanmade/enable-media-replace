@@ -91,10 +91,6 @@ function emr_options() {
 
 	if ( isset( $_GET['action'] ) && $_GET['action'] == 'media_replace_upload' ) {
 
-		if ( ! current_user_can( 'upload_files' ) ) {
-			return;
-		}
-
 		$plugin_url = str_replace( "enable-media-replace.php", "", __FILE__ );
 		check_admin_referer( 'media_replace_upload' ); // die if invalid or missing nonce
 		require_once( $plugin_url . "upload.php" );

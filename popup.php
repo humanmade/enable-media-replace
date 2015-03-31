@@ -50,7 +50,7 @@ $current_filename = substr( $current_filename, ( strrpos( $current_filename, '/'
 
 		<p><?php esc_html_e( 'Choose a file to upload from your computer', 'enable-media-replace' ); ?></p>
 
-		<input type="file" name="userfile"/>
+		<input type="file" id="user_file" name="userfile" value="" />
 
 		<?php do_action( 'emr_before_replace_type_options' ); ?>
 
