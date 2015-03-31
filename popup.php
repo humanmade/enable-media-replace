@@ -20,11 +20,11 @@ $table_name = $wpdb->prefix . 'posts';
 
 $attachment_id = absint( $_GET['attachment_id'] );
 
-$sql = $wpdb->prepare( "SELECT guid, post_mime_type FROM $table_name WHERE ID = %d", $attachment_id );
+$current_attachment_data = get_post( $attachment_id );
 
-list( $current_filename, $current_filetype ) = $wpdb->get_row( $sql, ARRAY_N );
+$current_filetype = $current_attachment_data->post_mime_type;
 
-$current_filename = substr( $current_filename, ( strrpos( $current_filename, '/' ) + 1 ) );
+$current_filename = wp_basename( $current_attachment_data->guid );
 
 ?>
 <div class="wrap">
