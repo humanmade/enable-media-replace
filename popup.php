@@ -70,7 +70,7 @@ $current_filename = substr( $current_filename, ( strrpos( $current_filename, '/'
 		<?php else : ?>
 			<input type="hidden" name="replace_type" value="replace"/>
 		<?php endif; ?>
-		<input type="submit" class="button" value="<?php esc_html_e( 'Upload', 'enable-media-replace' ); ?>"/>
+		<input type="submit" name="save" class="button" value="<?php esc_html_e( 'Upload', 'enable-media-replace' ); ?>"/>
 		<a href="#" onclick="history.back();"><?php esc_html_e( 'Cancel', 'enable-media-replace' ); ?></a>
 	</form>
 </div>
