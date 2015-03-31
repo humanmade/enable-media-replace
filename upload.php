@@ -32,30 +32,38 @@ if ( is_uploaded_file( $_FILES['userfile']['tmp_name'] ) ) {
 
 	// New method for validating that the uploaded file is allowed, using WP:s internal wp_check_filetype_and_ext() function.
 	$filedata = wp_check_filetype_and_ext( $_FILES['userfile']['tmp_name'], $_FILES['userfile']['name'] );
+	$form_fields = array( 'save' );
 
 	if ( $filedata['ext'] == '' ) {
 		esc_html_e( 'File type does not meet security guidelines. Try another.', 'enable-media-replace' );
 		exit;
 	}
+	if ( isset( $_POST['save'] ) ) {
 
 	$new_filename = $_FILES['userfile']['name'];
 	$new_filesize = $_FILES['userfile']['size'];
 	$new_filetype = $filedata['type'];
 
-	// save original file permissions
-	$original_file_perms = fileperms( $current_file ) & 0777;
+		if ( false === ( $creds = request_filesystem_credentials( $form_url, '', false, false, $form_fields ) ) ) {
+			return true;
+		}
 
 	if ( $replace_type == 'replace' ) {
 		// Drop-in replace and we don't even care if you uploaded something that is the wrong file-type.
 		// That's your own fault, because we warned you!
+		// now we have some credentials, try to get the wp_filesystem running
+		if ( ! WP_Filesystem( $creds ) ) {
+			// our credentials were no good, ask the user for them again
+			request_filesystem_credentials( $form_url, '', true, false, $form_fields );
+			return true;
+		}
 
 		emr_delete_current_files( $current_file );
+		global $wp_filesystem;
 
 		// Move new file to old location/name
 		move_uploaded_file( $_FILES['userfile']['tmp_name'], $current_file );
 
-		// Chmod new file to original file permissions
-		@chmod( $current_file, $original_file_perms );
 
 		// Make thumb and/or update metadata
 		wp_update_attachment_metadata( absint( $_POST['ID'] ), wp_generate_attachment_metadata( absint( $_POST['ID'] ), $current_file ) );
@@ -64,6 +72,8 @@ if ( is_uploaded_file( $_FILES['userfile']['tmp_name'] ) ) {
 		update_attached_file( absint( $_POST['ID'] ), $current_file );
 	} elseif ( 'replace_and_search' == $replace_type && apply_filters( 'emr_enable_replace_and_search', true ) ) {
 		// Replace file, replace file name, update meta data, replace links pointing to old file name
+		// save original file permissions
+		$original_file_perms = $wp_filesystem->gethchmod( $current_file );
 
 		emr_delete_current_files( $current_file );
 
@@ -74,8 +84,8 @@ if ( is_uploaded_file( $_FILES['userfile']['tmp_name'] ) ) {
 		$new_file = $current_path . '/' . $new_filename;
 		move_uploaded_file( $_FILES['userfile']['tmp_name'], $new_file );
 
-		// Chmod new file to original file permissions
-		@chmod( $current_file, $original_file_perms );
+			// Chmod new file to original file permissions
+			$wp_filesystem->chmod( $current_file, $original_file_perms );
 
 		$new_filetitle = preg_replace( '/\.[^.]+$/', '', basename( $new_file ) );
 		$new_filetitle = apply_filters( 'enable_media_replace_title', $new_filetitle ); // Thanks Jonas Lundman (http://wordpress.org/support/topic/add-filter-hook-suggestion-to)
@@ -104,6 +114,8 @@ if ( is_uploaded_file( $_FILES['userfile']['tmp_name'] ) ) {
 			"SELECT ID, post_content FROM $table_name WHERE post_content LIKE %s;",
 			'%' . $current_guid . '%'
 		);
+			// Chmod new file to original file permissions
+			$wp_filesystem->chmod( $current_file, $original_file_perms );
 
 		$rs = $wpdb->get_results( $sql, ARRAY_A );
 
@@ -147,6 +159,9 @@ function ua_has_files_to_upload( $id ) {
 }
 
 function emr_delete_current_files( $current_file ) {
+
+	global $wp_filesystem;
+
 	// Delete old file
 
 	// Find path of current file
@@ -154,16 +169,7 @@ function emr_delete_current_files( $current_file ) {
 
 	// Check if old file exists first
 	if ( file_exists( $current_file ) ) {
-		// Now check for correct file permissions for old file
-		clearstatcache();
-		if ( is_writable( $current_file ) ) {
-			// Everything OK; delete the file
-			unlink( $current_file );
-		} else {
-			// File exists, but has wrong permissions. Let the user know.
-			printf( __( 'The file %1$s can not be deleted by the web server, most likely because the permissions on the file are wrong.', 'enable-media-replace' ), $current_file );
-			exit;
-		}
+		$wp_filesystem->delete( $current_file );
 	}
 
 	// Delete old resized versions if this was an image
