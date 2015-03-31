@@ -32,11 +32,8 @@ $current_filename = substr( $current_filename, ( strrpos( $current_filename, '/'
 	<h2><?php echo esc_html__( 'Replace Media Upload', 'enable-media-replace' ); ?></h2>
 
 	<?php
-	$form_url = admin_url( 'upload.php?page=enable-media-replace/enable-media-replace.php&noheader=true&action=media_replace_upload&attachment_id=' . $attachment_id );
+	$form_url = add_query_arg( array( 'page' => 'enable-media-replace/enable-media-replace.php', 'noheader' => 'true', 'action' => 'media_replace_upload', 'attachment_id' => $attachment_id ), self_admin_url( 'upload.php' ) );
 
-	if ( FORCE_SSL_ADMIN ) {
-		$formurl = str_replace( 'http:', 'https:', $form_url );
-	}
 	?>
 
 	<form enctype="multipart/form-data" method="post" action="<?php echo esc_url( $form_url ); ?>">
