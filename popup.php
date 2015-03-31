@@ -20,11 +20,11 @@ $table_name = $wpdb->prefix . 'posts';
 
 $attachment_id = absint( $_GET['attachment_id'] );
 
-$sql = $wpdb->prepare( "SELECT guid, post_mime_type FROM $table_name WHERE ID = %d", $attachment_id );
+$current_attachment_data = get_post( $attachment_id );
 
-list( $current_filename, $current_filetype ) = $wpdb->get_row( $sql, ARRAY_N );
+$current_filetype = $current_attachment_data->post_mime_type;
 
-$current_filename = substr( $current_filename, ( strrpos( $current_filename, '/' ) + 1 ) );
+$current_filename = wp_basename( $current_attachment_data->guid );
 
 ?>
 <div class="wrap">
@@ -32,11 +32,8 @@ $current_filename = substr( $current_filename, ( strrpos( $current_filename, '/'
 	<h2><?php echo esc_html__( 'Replace Media Upload', 'enable-media-replace' ); ?></h2>
 
 	<?php
-	$form_url = admin_url( 'upload.php?page=enable-media-replace/enable-media-replace.php&noheader=true&action=media_replace_upload&attachment_id=' . $attachment_id );
+	$form_url = add_query_arg( array( 'page' => 'enable-media-replace/enable-media-replace.php', 'noheader' => 'true', 'action' => 'media_replace_upload', 'attachment_id' => $attachment_id ), self_admin_url( 'upload.php' ) );
 
-	if ( FORCE_SSL_ADMIN ) {
-		$formurl = str_replace( 'http:', 'https:', $form_url );
-	}
 	?>
 
 	<form enctype="multipart/form-data" method="post" action="<?php echo esc_url( $form_url ); ?>">
@@ -50,7 +47,7 @@ $current_filename = substr( $current_filename, ( strrpos( $current_filename, '/'
 
 		<p><?php esc_html_e( 'Choose a file to upload from your computer', 'enable-media-replace' ); ?></p>
 
-		<input type="file" id="user_file" name="userfile" value="" />
+		<input type="file" id="userfile" name="userfile" value="" />
 
 		<?php do_action( 'emr_before_replace_type_options' ); ?>
 
@@ -70,7 +67,7 @@ $current_filename = substr( $current_filename, ( strrpos( $current_filename, '/'
 		<?php else : ?>
 			<input type="hidden" name="replace_type" value="replace"/>
 		<?php endif; ?>
-		<input type="submit" class="button" value="<?php esc_html_e( 'Upload', 'enable-media-replace' ); ?>"/>
+		<input type="submit" name="save" class="button" value="<?php esc_html_e( 'Upload', 'enable-media-replace' ); ?>"/>
 		<a href="#" onclick="history.back();"><?php esc_html_e( 'Cancel', 'enable-media-replace' ); ?></a>
 	</form>
 </div>
