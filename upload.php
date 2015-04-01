@@ -94,9 +94,14 @@ if ( is_uploaded_file( $_FILES['userfile']['tmp_name'] ) ) {
 			// Chmod new file to original file permissions
 			$wp_filesystem->chmod( $current_file, $original_file_perms );
 
-			$new_filetitle = preg_replace( '/\.[^.]+$/', '', basename( $new_file ) );
-			$new_filetitle = apply_filters( 'enable_media_replace_title', $new_filetitle ); // Thanks Jonas Lundman (http://wordpress.org/support/topic/add-filter-hook-suggestion-to)
-			$new_guid      = str_replace( $current_filename, $new_filename, $current_guid );
+			$new_filetitle = apply_filters( 'enable_media_replace_title', preg_replace( '/\.[^.]+$/', '', wp_basename( $new_file ) ) ); // Thanks Jonas Lundman (http://wordpress.org/support/topic/add-filter-hook-suggestion-to)
+
+			// Keep current post title if it was already set or not different.
+			if ( ! empty( $current_attachment_data->post_title ) && ( $current_attachment_data->post_title !== $new_filetitle ) ) {
+				$new_filetitle = $current_attachment_data->post_title;
+			}
+
+			$new_guid = str_replace( $current_filename, $new_filename, $current_guid );
 
 			// Update database file name
 			$post_data = array(
